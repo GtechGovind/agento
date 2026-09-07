@@ -53,8 +53,8 @@ mcp = ["mcp>=1.26,<3"]
 # Persistence
 # ---------------------------------------------------------------------------
 # One SQLAlchemy 2.0 async implementation serves SQLite, Postgres and MySQL.
-sqlite = ["sqlalchemy[asyncio]>=2.0", "aiosqlite>=0.20"]
-postgres = ["sqlalchemy[asyncio]>=2.0", "asyncpg>=0.29"]
+sqlite = ["sqlalchemy[asyncio]>=2.0.52", "aiosqlite>=0.20"]
+postgres = ["sqlalchemy[asyncio]>=2.0.52", "asyncpg>=0.29"]
 
 # ---------------------------------------------------------------------------
 # Niceties — each has an stdlib fallback, so none of these are required
@@ -66,23 +66,24 @@ postgres = ["sqlalchemy[asyncio]>=2.0", "asyncpg>=0.29"]
 extras = [
     "tiktoken>=0.7",
     "python-ulid>=3.0",
-    "pyyaml>=6.0",
+    "pyyaml>=6.0.3",
     "tenacity>=9.0",
 ]
 # OpenTelemetry tracing adapter. Tracing is a no-op unless you wire this in.
-otel = ["opentelemetry-api>=1.27"]
+otel = ["opentelemetry-api>=1.27", "opentelemetry-instrumentation-openai>=0.62.3"]
 
 all = [
     "openai>=1.60",
     "litellm>=1.55; python_version >= '3.11'",
     "mcp>=1.26,<3",
-    "sqlalchemy[asyncio]>=2.0",
+    "sqlalchemy[asyncio]>=2.0.52",
     "aiosqlite>=0.20",
     "tiktoken>=0.7",
     "python-ulid>=3.0",
-    "pyyaml>=6.0",
+    "pyyaml>=6.0.3",
     "tenacity>=9.0",
     "opentelemetry-api>=1.27",
+    "opentelemetry-instrumentation-openai>=0.62.3",
 ]
 
 dev = [
