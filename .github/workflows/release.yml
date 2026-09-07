@@ -1,0 +1,125 @@
+name: GitHub prerelease
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Package version from pyproject.toml, without v (for example 0.1.0)'
+        type: string
+        required: true
+      commit:
+        description: 'Full SHA at the current tip of main with successful CI and Security gates'
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-prerelease
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.repository == 'GtechGovind/agento' && github.ref == 'refs/heads/main'
+    name: Verify and build release
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+      attestations: write
+    env:
+      RELEASE_VERSION: ${{ inputs.version }}
+      RELEASE_COMMIT: ${{ inputs.commit }}
+      AGENTO_OFFLINE: '1'
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.14'
+      - name: Require verified source and an unused version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/check_release.py --version "$RELEASE_VERSION" --commit "$RELEASE_COMMIT"
+      - name: Build packages
+        run: |
+          python -m pip install 'build==1.6.0' 'hatchling==1.32.0' 'cyclonedx-bom==7.3.1'
+          python -m build --no-isolation
+          python scripts/check_dist.py dist
+      - name: Verify the installed wheel and describe its core dependencies
+        run: |
+          python -m venv "$RUNNER_TEMP/release-runtime"
+          "$RUNNER_TEMP/release-runtime/bin/python" -m pip install dist/*.whl
+          "$RUNNER_TEMP/release-runtime/bin/python" -m pip check
+          mkdir "$RUNNER_TEMP/release-examples"
+          cp -R examples scripts README.md "$RUNNER_TEMP/release-examples/"
+          "$RUNNER_TEMP/release-runtime/bin/python" "$RUNNER_TEMP/release-examples/scripts/check_examples.py"
+          python -m cyclonedx_py environment "$RUNNER_TEMP/release-runtime/bin/python" \
+            --pyproject pyproject.toml --mc-type library --output-reproducible \
+            --spec-version 1.6 --output-file dist/core-runtime.cdx.json
+          cd dist
+          sha256sum ./*.whl ./*.tar.gz ./*.cdx.json > SHA256SUMS
+      - name: Attest package and SBOM provenance
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-path: dist/*
+          create-storage-record: false
+      - name: Bind the core dependency SBOM to the wheel
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-path: dist/*.whl
+          sbom-path: dist/core-runtime.cdx.json
+          create-storage-record: false
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: release-assets
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 30
+
+  publish:
+    name: Publish GitHub prerelease
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      actions: read
+      attestations: read
+    env:
+      RELEASE_VERSION: ${{ inputs.version }}
+      RELEASE_COMMIT: ${{ inputs.commit }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.14'
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          name: release-assets
+          path: dist
+      - name: Recheck source, checksums, and provenance immediately before publishing
+        run: |
+          python scripts/check_release.py --version "$RELEASE_VERSION" --commit "$RELEASE_COMMIT"
+          (cd dist && sha256sum --check SHA256SUMS)
+          for artifact in dist/*; do
+            gh attestation verify "$artifact" --repo "$GITHUB_REPOSITORY" \
+              --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/release.yml" \
+              --source-digest "$RELEASE_COMMIT" --deny-self-hosted-runners
+          done
+      - name: Create a new tag and publish the prerelease with complete assets
+        run: |
+          gh api --method POST "repos/$GITHUB_REPOSITORY/git/refs" \
+            -f "ref=refs/tags/v$RELEASE_VERSION" -f "sha=$RELEASE_COMMIT"
+          gh release create "v$RELEASE_VERSION" dist/* --repo "$GITHUB_REPOSITORY" \
+            --verify-tag --draft --prerelease --latest=false --generate-notes \
+            --title "agento v$RELEASE_VERSION — preview release"
+          gh release edit "v$RELEASE_VERSION" --repo "$GITHUB_REPOSITORY" \
+            --draft=false --prerelease --latest=false

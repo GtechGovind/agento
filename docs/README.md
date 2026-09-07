@@ -17,6 +17,7 @@ publication is a separate release step.
 | Handle cancellation, outages, and deployment | [Operations](operations.md) |
 | Check what has actually been verified | [Validation](validation.md) |
 | Contribute or prepare a release | [Contributing](../CONTRIBUTING.md) |
+| Download, verify, or publish a GitHub prerelease | [Releases](releases.md) |
 
 The [examples directory](../examples) contains complete scripts. Set
 `AGENTO_OFFLINE=1` to force their scripted mode even when provider credentials

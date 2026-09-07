@@ -6,13 +6,24 @@ to external users or attaching tools with important side effects.
 
 ## Reporting
 
-Use the repository's private vulnerability-reporting channel when it is enabled.
-If no private channel is configured, ask the repository maintainer for one
-without posting exploit details, credentials, or private data publicly. A
-maintainer must configure and publish that contact before a public release.
+Report vulnerabilities through
+[GitHub private vulnerability reporting](https://github.com/GtechGovind/agento/security/advisories/new).
+This sends the report to the repository maintainer without publishing a public
+issue. Do not put exploit details, credentials, or private data in public issues
+or pull requests. If the private form is unavailable, open an issue asking the
+maintainer to restore the reporting channel, without disclosing the vulnerability.
 
-Provide affected versions, the smallest safe reproduction, expected/actual
-behavior, and impact. Use disposable files and synthetic credentials.
+Provide affected versions or commits, the smallest safe reproduction,
+expected/actual behavior, and impact. Use disposable files and synthetic
+credentials. Include recovery or mitigation ideas if known. The maintainer will
+coordinate investigation, fixes, and disclosure through the private report.
+
+## Supported versions
+
+Security fixes currently target the latest `main` revision and the latest
+prerelease. Older prereleases have no guaranteed backport support. A prerelease
+is evaluation software; the test matrix and its limits are recorded in
+[validation](docs/validation.md).
 
 ## Responsibility boundaries
 

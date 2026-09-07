@@ -1,0 +1,36 @@
+name: Bug report
+description: Report a reproducible runtime, adapter, or documentation failure.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For vulnerabilities, use [private reporting](https://github.com/GtechGovind/agento/security/advisories/new).
+        Use synthetic data. Remove API keys, authorization headers, tokens, personal data, and private tool output.
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and actual behavior
+      description: Describe what you expected, what happened, and the impact.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Minimal reproduction
+      description: Include a small example and commands. Prefer ScriptedLLM or another deterministic adapter.
+      render: python
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Versions and environment
+      description: Include agento version or commit, Python, OS, installed extras, and relevant adapter/database versions. No credentials or connection strings.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Sanitized error or event sequence
+      description: If relevant, include the exception and whether this happened during streaming, cancellation, restart, or concurrent access.
+      render: text

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability privately
+    url: https://github.com/GtechGovind/agento/security/advisories/new
+    about: Share vulnerability details privately with the maintainer. Do not post exploits or secrets in public issues.
+  - name: Usage and operations documentation
+    url: https://github.com/GtechGovind/agento/blob/main/docs/README.md
+    about: Start with the guides, API contracts, examples, and operational boundaries.
