@@ -1,0 +1,24 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+dist/
+build/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.agento/
+.agento-example.db
+*.db
+
+# Local workspace and verification artifacts (existing staged files are untouched).
+.idea/
+.slingshot/
+*.iml
+graphify-out/
+.coverage*
+coverage.json
+coverage.xml
+htmlcov/

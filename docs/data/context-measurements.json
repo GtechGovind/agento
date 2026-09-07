@@ -1,0 +1,120 @@
+{
+  "measured_at": "2026-09-07T07:30:46.800122+00:00",
+  "python": "3.14.7",
+  "agento": "0.1.0",
+  "pydantic": "2.13.5",
+  "tiktoken": "0.14.0",
+  "encoding": "o200k_base",
+  "unit": "tokens in compact JSON of runtime messages plus tools",
+  "method": "Paired real runtime executions with synthetic data and ScriptedLLM; unrelated optional capabilities disabled equally; helper schemas and instructions included.",
+  "limits": "No provider calls, billing, answer-quality, latency, or full-task savings measured. Offloading measures the next request and two-request input total before selective reads. Deferral measures only the first request before discovery. Generated artifact IDs can change token counts slightly. Negative reductions mean additional context.",
+  "offloading": [
+    {
+      "rows": 20,
+      "payload_bytes": 3569,
+      "payload_sha256": "f6554b9ad1ac740fec8f566206135c352e96cb7d0ac9eb7cad37d514802111a1",
+      "offloaded": false,
+      "stored_bytes": 0,
+      "next_request": {
+        "before": 1485,
+        "after": 1822,
+        "reduction_percent": -22.69
+      },
+      "two_request_input_total": {
+        "before": 1663,
+        "after": 2337,
+        "reduction_percent": -40.53
+      },
+      "baseline_request_tokens": [
+        178,
+        1485
+      ],
+      "enabled_request_tokens": [
+        515,
+        1822
+      ]
+    },
+    {
+      "rows": 200,
+      "payload_bytes": 35707,
+      "payload_sha256": "22f2b02ae61507e8d3711420cc51495c0576ad31c986c487b02bca4d1982f3b1",
+      "offloaded": true,
+      "stored_bytes": 35707,
+      "next_request": {
+        "before": 12825,
+        "after": 957,
+        "reduction_percent": 92.54
+      },
+      "two_request_input_total": {
+        "before": 13003,
+        "after": 1472,
+        "reduction_percent": 88.68
+      },
+      "baseline_request_tokens": [
+        178,
+        12825
+      ],
+      "enabled_request_tokens": [
+        515,
+        957
+      ]
+    },
+    {
+      "rows": 2000,
+      "payload_bytes": 357093,
+      "payload_sha256": "7129a27f5030702215b9a36464a09ed63a9360fcb9184e1497cce61223d6804f",
+      "offloaded": true,
+      "stored_bytes": 357093,
+      "next_request": {
+        "before": 126225,
+        "after": 958,
+        "reduction_percent": 99.24
+      },
+      "two_request_input_total": {
+        "before": 126403,
+        "after": 1473,
+        "reduction_percent": 98.83
+      },
+      "baseline_request_tokens": [
+        178,
+        126225
+      ],
+      "enabled_request_tokens": [
+        515,
+        958
+      ]
+    }
+  ],
+  "deferred_tools": [
+    {
+      "catalog_tools": 1,
+      "first_request": {
+        "before": 271,
+        "after": 550,
+        "reduction_percent": -102.95
+      },
+      "preloaded_schemas": 1,
+      "deferred_entrypoint_schemas": 3
+    },
+    {
+      "catalog_tools": 10,
+      "first_request": {
+        "before": 1450,
+        "after": 550,
+        "reduction_percent": 62.07
+      },
+      "preloaded_schemas": 10,
+      "deferred_entrypoint_schemas": 3
+    },
+    {
+      "catalog_tools": 100,
+      "first_request": {
+        "before": 13240,
+        "after": 550,
+        "reduction_percent": 95.85
+      },
+      "preloaded_schemas": 100,
+      "deferred_entrypoint_schemas": 3
+    }
+  ]
+}

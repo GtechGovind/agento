@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="390" viewBox="0 0 1280 390" fill="none" role="img" aria-labelledby="title desc">
+<title id="title">agento — More capability. Less context overhead.</title><desc id="desc">An embeddable Python agent runtime: discover tools and skills on demand, compact history and read selectively, coordinate agents and approvals with durable state.</desc>
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1280" y2="700" gradientUnits="userSpaceOnUse"><stop stop-color="#101F35"/><stop offset="1" stop-color="#080F1C"/></linearGradient></defs>
+<rect x=".5" y=".5" width="1279" height="389" rx="22" fill="url(#bg)" stroke="#30465D"/>
+<g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+<text x="58" y="49" fill="#94ADC3" font-size="12" font-weight="600" text-anchor="start" letter-spacing="2">THE RUNTIME AROUND YOUR MODEL</text>
+<text x="54" y="140" fill="#F2F7FC" font-size="84" font-weight="700" text-anchor="start" letter-spacing="-4">agento</text>
+<circle cx="341" cy="127" r="7" fill="#67E8CE"/>
+<text x="58" y="211" fill="#F2F7FC" font-size="32" font-weight="650" text-anchor="start" letter-spacing="-0.5">More capability.</text>
+<text x="58" y="254" fill="#F2F7FC" font-size="32" font-weight="650" text-anchor="start" letter-spacing="-0.5">Less context overhead.</text>
+<text x="58" y="312" fill="#A8BED0" font-size="15" font-weight="400" text-anchor="start" letter-spacing="0">Your models. Your tools. Your application.</text>
+<path d="M58 347L584 347" stroke="#467C85" stroke-width="2"/>
+<path d="M692 99L692 285" stroke="#436877" stroke-width="2"/>
+<circle cx="692" cy="99" r="5" fill="#67E8CE"/>
+<path d="M697 99L724 99" stroke="#67E8CE" stroke-width="2"/>
+<rect x="724" y="64" width="496" height="72" rx="12" fill="#14273B" stroke="#355066"/>
+<text x="747" y="89" fill="#67E8CE" font-size="11" font-weight="700" text-anchor="start" letter-spacing="1.8">DISCOVER</text>
+<text x="747" y="115" fill="#DFECF6" font-size="17" font-weight="500" text-anchor="start" letter-spacing="0">Tools and skills, loaded on demand.</text>
+<circle cx="692" cy="192" r="5" fill="#91BFFF"/>
+<path d="M697 192L724 192" stroke="#91BFFF" stroke-width="2"/>
+<rect x="724" y="157" width="496" height="72" rx="12" fill="#14273B" stroke="#355066"/>
+<text x="747" y="182" fill="#91BFFF" font-size="11" font-weight="700" text-anchor="start" letter-spacing="1.8">FOCUS</text>
+<text x="747" y="208" fill="#DFECF6" font-size="17" font-weight="500" text-anchor="start" letter-spacing="0">Compact history. Read results selectively.</text>
+<circle cx="692" cy="285" r="5" fill="#C6B3FF"/>
+<path d="M697 285L724 285" stroke="#C6B3FF" stroke-width="2"/>
+<rect x="724" y="250" width="496" height="72" rx="12" fill="#14273B" stroke="#355066"/>
+<text x="747" y="275" fill="#C6B3FF" font-size="11" font-weight="700" text-anchor="start" letter-spacing="1.8">COORDINATE</text>
+<text x="747" y="301" fill="#DFECF6" font-size="17" font-weight="500" text-anchor="start" letter-spacing="0">Agents, approvals, and durable state.</text>
+<text x="724" y="357" fill="#94ADC3" font-size="11" font-weight="400" text-anchor="start" letter-spacing="1.1">CONTEXT CONTROL + EXECUTION + CONTINUITY</text>
+</g></svg>

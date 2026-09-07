@@ -1,0 +1,94 @@
+name: Verify
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: verify-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.10', '3.11', '3.12', '3.13', '3.14']
+        include:
+          - python: '3.10'
+            mcp: 'mcp==1.26.0'
+          - python: '3.11'
+            mcp: 'mcp>=1.26,<2'
+          - python: '3.12'
+            mcp: 'mcp>=2,<3'
+          - python: '3.13'
+            mcp: 'mcp>=2,<3'
+          - python: '3.14'
+            mcp: 'mcp>=2,<3'
+    env:
+      LITELLM_LOCAL_MODEL_COST_MAP: 'True'
+      AGENTO_OFFLINE: '1'
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install -e '.[all,dev]' '${{ matrix.mcp }}'
+      - run: python -m pytest --cov=agento --cov-report=xml --cov-report=term
+      - run: python scripts/check_examples.py
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: coverage-${{ matrix.python }}
+          path: coverage.xml
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.14'
+      - run: python -m pip install -e '.[all,dev]' build
+      - run: python -m ruff check src tests scripts examples
+      - run: python -m mypy src/agento
+      - run: python scripts/check_docs.py
+      - run: python -m build
+      - run: python scripts/check_dist.py dist
+  minimal:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.10', '3.14']
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install -e .
+      - if: matrix.python == '3.10'
+        run: python -m pip install 'pydantic==2.7.0'
+      - run: python tests/run_tests.py
+      - run: python scripts/check_examples.py
+      - run: python -c "import agento, sys; assert not any(p in sys.modules for p in ['mcp', 'openai', 'litellm', 'sqlalchemy'])"
+  postgres:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: agento
+          POSTGRES_PASSWORD: local-ci-only
+          POSTGRES_DB: agento_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    env:
+      AGENTO_TEST_POSTGRES_URL: postgresql+asyncpg://agento:local-ci-only@127.0.0.1:5432/agento_test
+      LITELLM_LOCAL_MODEL_COST_MAP: 'True'
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.14'
+      - run: python -m pip install -e '.[all,dev,postgres]'
+      - run: python -m pytest tests/test_durability.py -q

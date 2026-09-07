@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="440" viewBox="0 0 1280 440" fill="none" role="img" aria-labelledby="title desc">
+<title id="title">Measured context efficiency in local synthetic scenarios</title><desc id="desc">With 200 synthetic ticket records, the next request decreases from 12825 to 957 serialized-context tokens, a 92.54 percent reduction. With 100 synthetic tools, the first request decreases from 13240 to 550 tokens, a 95.85 percent reduction. These are not provider billing or complete-task savings.</desc>
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1280" y2="700" gradientUnits="userSpaceOnUse"><stop stop-color="#101F35"/><stop offset="1" stop-color="#080F1C"/></linearGradient></defs>
+<rect x=".5" y=".5" width="1279" height="439" rx="22" fill="url(#bg)" stroke="#30465D"/>
+<g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+<text x="48" y="43" fill="#F2F7FC" font-size="18" font-weight="650" text-anchor="start" letter-spacing="0">LESS CONTEXT, MEASURED AT THE REQUEST BOUNDARY</text>
+<text x="48" y="71" fill="#A8BED0" font-size="14" font-weight="400" text-anchor="start" letter-spacing="0">Real runtime · synthetic fixtures · o200k_base · messages + tool schemas, including helper overhead</text>
+<rect x="48" y="96" width="572" height="283" rx="12" fill="#14273B" stroke="#355066"/>
+<text x="72" y="124" fill="#A9C5DC" font-size="12" font-weight="650" text-anchor="start" letter-spacing="1.2">LARGE TOOL RESULTS</text>
+<text x="72" y="150" fill="#A8BED0" font-size="14" font-weight="400" text-anchor="start" letter-spacing="0">200 ticket records · next model request</text>
+<text x="72" y="203" fill="#67E8CE" font-size="44" font-weight="700" text-anchor="start" letter-spacing="-1">92.54%</text>
+<text x="280" y="197" fill="#C8DBE8" font-size="16" font-weight="400" text-anchor="start" letter-spacing="0">less request context</text>
+<text x="72" y="235" fill="#B2C8DB" font-size="13" font-weight="400" text-anchor="start" letter-spacing="0">Inline result</text>
+<text x="596" y="235" fill="#DFECF6" font-size="14" font-weight="600" text-anchor="end" letter-spacing="0">12,825 tokens</text>
+<rect x="72" y="246" width="524" height="17" rx="4" fill="#567898" stroke="#567898"/>
+<text x="72" y="294" fill="#B2C8DB" font-size="13" font-weight="400" text-anchor="start" letter-spacing="0">Artifact + preview</text>
+<text x="596" y="294" fill="#67E8CE" font-size="14" font-weight="600" text-anchor="end" letter-spacing="0">957 tokens</text>
+<rect x="72" y="305" width="524" height="17" rx="4" fill="#0B1927" stroke="#0B1927"/>
+<rect x="72" y="305" width="39.1" height="17" rx="4" fill="#67E8CE" stroke="#67E8CE"/>
+<text x="72" y="354" fill="#A8BED0" font-size="12" font-weight="400" text-anchor="start" letter-spacing="0">Full 35,707-byte result retained in the artifact store.</text>
+<rect x="660" y="96" width="572" height="283" rx="12" fill="#14273B" stroke="#355066"/>
+<text x="684" y="124" fill="#A9C5DC" font-size="12" font-weight="650" text-anchor="start" letter-spacing="1.2">DEFERRED TOOL DISCOVERY</text>
+<text x="684" y="150" fill="#A8BED0" font-size="14" font-weight="400" text-anchor="start" letter-spacing="0">100 available tools · first model request</text>
+<text x="684" y="203" fill="#67E8CE" font-size="44" font-weight="700" text-anchor="start" letter-spacing="-1">95.85%</text>
+<text x="892" y="197" fill="#C8DBE8" font-size="16" font-weight="400" text-anchor="start" letter-spacing="0">less request context</text>
+<text x="684" y="235" fill="#B2C8DB" font-size="13" font-weight="400" text-anchor="start" letter-spacing="0">All schemas preloaded</text>
+<text x="1208" y="235" fill="#DFECF6" font-size="14" font-weight="600" text-anchor="end" letter-spacing="0">13,240 tokens</text>
+<rect x="684" y="246" width="524" height="17" rx="4" fill="#567898" stroke="#567898"/>
+<text x="684" y="294" fill="#B2C8DB" font-size="13" font-weight="400" text-anchor="start" letter-spacing="0">Discovery entrypoints</text>
+<text x="1208" y="294" fill="#67E8CE" font-size="14" font-weight="600" text-anchor="end" letter-spacing="0">550 tokens</text>
+<rect x="684" y="305" width="524" height="17" rx="4" fill="#0B1927" stroke="#0B1927"/>
+<rect x="684" y="305" width="21.8" height="17" rx="4" fill="#67E8CE" stroke="#67E8CE"/>
+<text x="684" y="354" fill="#A8BED0" font-size="12" font-weight="400" text-anchor="start" letter-spacing="0">Discovery and business-tool calls happen afterward.</text>
+<text x="48" y="409" fill="#A8BED0" font-size="13" font-weight="400" text-anchor="start" letter-spacing="0">Scope: local context counts, not billed or complete-task savings. Small workloads can add overhead. Full results are linked below.</text>
+</g></svg>
