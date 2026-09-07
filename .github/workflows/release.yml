@@ -58,8 +58,9 @@ jobs:
           mkdir "$RUNNER_TEMP/release-examples"
           cp -R examples scripts README.md "$RUNNER_TEMP/release-examples/"
           "$RUNNER_TEMP/release-runtime/bin/python" "$RUNNER_TEMP/release-examples/scripts/check_examples.py"
+          # Keep serialNumber: the pinned attestation action requires it; --output-reproducible removes it.
           python -m cyclonedx_py environment "$RUNNER_TEMP/release-runtime/bin/python" \
-            --pyproject pyproject.toml --mc-type library --output-reproducible \
+            --pyproject pyproject.toml --mc-type library \
             --spec-version 1.6 --output-file dist/core-runtime.cdx.json
           cd dist
           sha256sum ./*.whl ./*.tar.gz ./*.cdx.json > SHA256SUMS

@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.0 — 2026-09-07 (preview)
 
 ### Fixed
 
@@ -23,6 +23,11 @@
   integration, offline provider transport tests, coverage and CI checks.
 - Brief README, detailed usage/operations guides, contribution and security
   policies, license/attribution files, typed-package marker, and distribution allowlists.
+- Three architecture/context visuals and six reproducible context-efficiency
+  measurements with their scope, overhead, and limitations.
+- GitHub CI for Python 3.10–3.14, CodeQL and dependency audits, coding-agent
+  guidance, Dependabot updates, and a verified prerelease pipeline with checksums,
+  a core-runtime SBOM, and artifact attestations.
 
 ### Compatibility notes
 
