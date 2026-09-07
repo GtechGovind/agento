@@ -198,12 +198,12 @@ name and description reach the prompt; the body loads on demand. See
 
 Teaches the model the `openui` language so it can emit charts, tables and forms.
 **agento renders nothing** — the block arrives as ordinary assistant text and
-your application renders it. The language matches TrueForge's chat UI, so an
-existing renderer works unchanged; if you are writing your own, the module is the
-specification.
+your application renders it. The capability module defines the grammar,
+component signatures, and built-in functions for implementing a compatible renderer.
 
-Off by default. `preload=True` puts the full spec (~4,000 tokens) in every
-prompt; the default defers it behind a tool call.
+Off by default. `preload=True` puts the full spec in every prompt (about 3,100
+tokens with `o200k_base`; provider tokenization varies). The default defers it
+behind a tool call.
 
 ---
 

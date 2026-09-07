@@ -29,7 +29,7 @@ Embed it in your Python application and bring your own models, tools, and interf
 
 ## Token efficiency you can inspect
 
-![Measured context reduction: 200 synthetic ticket records, 12,825 to 957 tokens on the next request; 100 synthetic tool schemas, 13,240 to 550 tokens on the first request.](docs/assets/context-efficiency.svg)
+![Measured context reduction: 200 synthetic ticket records, 12,834 to 970 tokens on the next request; 100 synthetic tool schemas, 13,249 to 492 tokens on the first request.](docs/assets/context-efficiency.svg)
 
 These measurements count **serialized request messages and tool schemas** from
 paired executions of the real runtime with synthetic fixtures and scripted model
@@ -39,7 +39,7 @@ was retained byte-for-byte in the artifact store.
 The scope is the next request after offloading, or the initial request before
 tool discovery. **These are not provider-billed or complete-task savings.**
 Small workloads can use more context: the 20-record case added 337 tokens, and
-deferring one tool added 279. Retrieval, discovery, and summarization have costs.
+deferring one tool added 212. Retrieval, discovery, and summarization have costs.
 [Inspect all six cases, tradeoffs, and reproduction commands →](docs/token-efficiency.md)
 
 ## The framework around the model
@@ -145,9 +145,9 @@ and business idempotency. See [recovery and deployment](docs/operations.md).
 
 ## Built to be inspected
 
-The [local validation record](docs/validation.md) documents **127 passing tests**,
-**85.65% combined statement and branch coverage**, and a **142-test Python 3.10 /
-PostgreSQL run**. Strict typing, lint, runnable examples, and package-content
+The [local validation record](docs/validation.md) documents **179 passing tests**
+and **88.18% combined statement and branch coverage**. CI covers Python 3.10–3.14
+and PostgreSQL durability. Strict typing, lint, runnable examples, and package
 checks are part of the [contribution workflow](CONTRIBUTING.md).
 
 **Status: pre-release.** Live-provider and deployment acceptance remain release
@@ -159,5 +159,4 @@ work; the validation guide records what has and has not been verified.
 example. Start with [contributing](CONTRIBUTING.md), the [security policy](SECURITY.md),
 and the [changelog](CHANGELOG.md).
 
-Licensed under [MIT](LICENSE). Architecture informed by
-[TrueForge](https://github.com/truefoundry/trueforge); attribution is preserved in [NOTICE](NOTICE).
+Licensed under [MIT](LICENSE). See [NOTICE](NOTICE) for third-party license information.

@@ -24,5 +24,5 @@ The [examples directory](../examples) contains complete scripts. Set
 are present. The first example works with the Pydantic-only installation;
 SQLite examples require the `sqlite` extra.
 
-The [original design plan](PLAN.md) is historical background. Current API and
-runtime behavior are described by these guides and the regression tests.
+The [engineering plan](PLAN.md) records maintained contracts and the acceptance
+work for future releases. These guides and the regression tests describe current behavior.
