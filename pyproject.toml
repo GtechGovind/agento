@@ -22,6 +22,14 @@ dependencies = [
     "pydantic>=2.7,<3",
 ]
 
+[project.urls]
+Homepage = "https://github.com/GtechGovind/agento"
+Documentation = "https://github.com/GtechGovind/agento/blob/main/docs/README.md"
+Repository = "https://github.com/GtechGovind/agento"
+Issues = "https://github.com/GtechGovind/agento/issues"
+Changelog = "https://github.com/GtechGovind/agento/blob/main/CHANGELOG.md"
+Releases = "https://github.com/GtechGovind/agento/releases"
+
 [project.optional-dependencies]
 # ---------------------------------------------------------------------------
 # Model providers
@@ -116,7 +124,7 @@ warn_return_any = false
 include = [
     "/src/agento", "/tests", "/examples", "/scripts", "/docs",
     "/README.md", "/LICENSE", "/NOTICE", "/CONTRIBUTING.md", "/SECURITY.md",
-    "/CHANGELOG.md", "/pyproject.toml", "/uv.lock", "/.github/workflows/ci.yml",
+    "/CHANGELOG.md", "/pyproject.toml", "/uv.lock", "/AGENTS.md", "/.github",
 ]
 
 [tool.coverage.run]

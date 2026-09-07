@@ -16,6 +16,9 @@ With uv, `uv sync --extra all --extra dev --extra postgres` uses the checked-in
 lockfile. Runtime dependencies remain optional; the complete development
 installation is used for strict type checking and adapter tests.
 
+Core, OpenAI, and MCP support Python 3.10+. LiteLLM requires Python 3.11+ and is
+omitted by its dependency marker on 3.10. Use Python 3.11+ to work on LiteLLM.
+
 ## Required local checks
 
 ```bash
@@ -56,20 +59,65 @@ database. The normal test command does not require PostgreSQL.
 
 ## Pull requests
 
+Fork the repository or create a focused branch and open a pull request against
+`main`. Changes to protected `main` go through pull requests and the required
+status checks. Resolve review conversations before merging. Default review
+ownership is `@GtechGovind`; a maintainer reviews compatibility, scope, and
+release impact. Dependency updates follow the same process and are not
+automatically merged.
+
+The repository currently has one maintainer, so protection does not demand a
+second approving reviewer on the owner's own pull requests. Required CI/security
+checks, resolved conversations, and the pull-request path still apply; only
+users with repository merge permission can merge. Revisit the approval count
+when additional maintainers join.
+
 Describe the concrete problem, resulting behavior, and checks run. Include
 remaining limitations and reproducible failures. New features should explain
 which application needs them and why they belong in the runtime.
 
-## Release checklist
+## Coding agents and dependency maintenance
 
-1. Run the checks above on a clean checkout and inspect wheel/sdist contents.
-2. Review source provenance, dependency licenses, package metadata, and notices.
-3. Confirm repository ownership, intended package-index name, and private
-   vulnerability reporting contact. No publication destination is assumed here.
-4. Record supported Python, adapter, and database versions and run live provider
-   acceptance, recovery, and deployment checks for the release scope.
-5. Update `CHANGELOG.md` and `docs/validation.md`, review the version, then build
-   signed/provenance-attested artifacts using the release infrastructure chosen
-   by the maintainers.
-6. Publish only after maintainer review. The supplied CI builds and validates;
-   it has no package publishing credentials or automatic publishing step.
+[AGENTS.md](AGENTS.md) provides shared guidance for coding agents, and
+[Copilot instructions](.github/copilot-instructions.md) describe repository
+contracts to prioritize during implementation and review. Give an agent a
+bounded problem, acceptance criteria, and relevant failure evidence. Review its
+diff and validation results through the same pull-request process.
+
+Two optional custom profiles are available in supported Copilot environments:
+
+- [runtime-maintainer](.github/agents/runtime-maintainer.md): focused runtime and
+  adapter fixes with regression tests; local read/search/edit/execute tools.
+- [docs-reviewer](.github/agents/docs-reviewer.md): checks documentation and token
+  claims against source and evidence; read/search tools only.
+
+These files provide context; they do not activate a hosted coding agent or
+automatic AI reviews. A maintainer must enable an available agent integration
+for their account/repository and explicitly assign a task or request its review.
+No model API key or paid AI service is required for the normal CI checks.
+
+Dependabot checks `uv` dependencies and pinned GitHub Actions weekly. Minor and
+patch updates are grouped; major updates remain separate for compatibility
+review. Keep `pyproject.toml` and `uv.lock` consistent and rerun the compatibility
+matrix when updating adapters. See GitHub's
+[supported ecosystems](https://docs.github.com/en/code-security/reference/supply-chain-security/supported-ecosystems-and-repositories)
+and [custom agent setup](https://docs.github.com/en/copilot/how-tos/copilot-on-github/customize-copilot/customize-cloud-agent/create-custom-agents).
+
+## GitHub prereleases
+
+1. Run the checks above, inspect package contents, and review source provenance,
+   dependency licenses, metadata, and notices. Confirm that private vulnerability
+   reporting works.
+2. Update the version, `CHANGELOG.md`, and validation documentation through a
+   pull request to `main`. Record the release's tested scope and unverified
+   live-provider/deployment boundaries.
+3. Wait for **CI gate** and **Security gate** to pass on the intended main-branch
+   push. In **Actions → GitHub prerelease → Run workflow**, select `main` and
+   enter `version` as `X.Y.Z` and `commit` as the current full 40-character SHA.
+4. Review the resulting workflow and assets. The pipeline verifies the exact
+   source, builds and checks the packages, records checksums/SBOM/attestations,
+   and publishes a new GitHub prerelease. It does not publish to PyPI.
+
+See [the release guide](docs/releases.md) for exact requirements, download
+verification, and recovery from an interrupted attempt. Never move a published
+tag or replace release assets. Publish a new version for a correction.

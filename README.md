@@ -6,6 +6,9 @@
 
 Python 3.10+ &nbsp; · &nbsp; Async &nbsp; · &nbsp; Typed &nbsp; · &nbsp; Pydantic-only core &nbsp; · &nbsp; MIT
 
+[![Verify](https://github.com/GtechGovind/agento/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/GtechGovind/agento/actions/workflows/ci.yml)
+[![Security](https://github.com/GtechGovind/agento/actions/workflows/security.yml/badge.svg?branch=main)](https://github.com/GtechGovind/agento/actions/workflows/security.yml)
+
 [Quickstart](#run-your-first-tool-in-a-minute) &nbsp; · &nbsp; [Token efficiency](docs/token-efficiency.md) &nbsp; · &nbsp; [Documentation](docs/README.md) &nbsp; · &nbsp; [Examples](examples) &nbsp; · &nbsp; [Contribute](CONTRIBUTING.md)
 
 </div>
@@ -62,6 +65,8 @@ and [capability system](docs/capabilities.md).
 From a checkout of this repository, install the core:
 
 ```bash
+git clone https://github.com/GtechGovind/agento.git
+cd agento
 python -m pip install -e .
 ```
 
@@ -136,6 +141,7 @@ and business idempotency. See [recovery and deployment](docs/operations.md).
 | **Measure context and token overhead** | [Mechanisms, measurements, and tradeoffs](docs/token-efficiency.md) |
 | **Learn by running code** | [Six complete examples](examples) — from hello to a custom capability |
 | **Prepare a deployment** | [Operations](docs/operations.md) · [Validation and release status](docs/validation.md) |
+| **Download or verify a release** | [GitHub releases](https://github.com/GtechGovind/agento/releases) · [Checksums, provenance, and release process](docs/releases.md) |
 
 ## Built to be inspected
 

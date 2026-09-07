@@ -39,8 +39,11 @@ responses on Python 3.10, but live LiteLLM construction is explicitly rejected.
 
 The test counts and coverage above describe the stated environment. They do not
 mean every branch is covered or every provider/database combination is verified.
-The compatibility workflow is in [CI](../.github/workflows/ci.yml); hosted CI has
-not been run from this local workspace.
+The compatibility workflow is in [CI](../.github/workflows/ci.yml). The table above
+is the original local baseline; current hosted results are available in
+[Verify](https://github.com/GtechGovind/agento/actions/workflows/ci.yml) and
+[Security](https://github.com/GtechGovind/agento/actions/workflows/security.yml).
+The [release pipeline](releases.md) requires both gates to pass on its exact source commit.
 
 ## Failure-to-regression map
 
@@ -80,11 +83,12 @@ fixture is opt-in and uses unique temporary table prefixes.
   through the host application's idempotency/reconciliation workflow.
 - Verify workload-specific contention, load, process-crash recovery, backup/restore,
   retention, tenant authorization, and resource cleanup in the target deployment.
-- MySQL and hosted CI runs are not verified here. The source supports SQLAlchemy
-  dialects, but that is not evidence of backend acceptance.
-- Configure a private security-reporting contact, confirm package/repository
-  ownership and source provenance, and complete the release checklist before
-  publishing. Package publication and remote release are separate maintainer actions.
+- MySQL is outside the locally verified set. The source supports SQLAlchemy
+  dialects, but that is not evidence of backend acceptance. Hosted checks are
+  tracked separately through the workflow links above.
+- Repository security reports use [private advisories](https://github.com/GtechGovind/agento/security/advisories/new).
+  Review source provenance and complete the release checklist before a stable
+  release. Package-index publication remains separate from GitHub prereleases.
 
 Graphify is a navigation aid. Unresolved extraction edges and undirected edge
 coalescing are recorded in the local graph diagnostics; they are not silently

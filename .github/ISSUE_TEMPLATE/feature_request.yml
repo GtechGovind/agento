@@ -1,0 +1,22 @@
+name: Feature or documentation request
+description: Propose an improvement with a concrete application use case.
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to build?
+      description: Describe the application need and what prevents it today. Use synthetic examples and omit private data.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior or documentation
+      description: Show the desired usage and explain which runtime or host boundary it belongs to.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives and tradeoffs
+      description: Note existing hooks/adapters you considered, compatibility needs, and how success could be measured.
