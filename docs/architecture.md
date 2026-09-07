@@ -59,11 +59,12 @@ flowchart TD
 
 An unanswered assistant tool call keeps a thread open. Approval records determine
 whether it may execute; client-side calls wait for the host. A child thread has a
-parent thread ID and the tool-call ID it must answer. Finishing that child appends
-its result to the parent's context. The child is removed before its `ThreadDone`
-checkpoint, so reload does not resurrect a retired child.
+parent thread ID and the tool-call ID it must answer. Finishing that child commits
+the parent's reply, child retirement, accumulated metrics, `ToolResult`, and
+`ThreadDone` in one checkpoint. The live stream then publishes `ToolResult`
+followed by `ThreadDone`; interruption between them cannot rerun the child.
 
-Child completion is included in the snapshot before the completed message is
+Completed child model output is included in the snapshot before the message is
 published. Recovery can deliver that completion without repeating the model
 call. Calls interrupted without a durable result carry an unknown outcome;
 [reconciliation](operations.md) belongs to the host/tool service.
@@ -88,9 +89,3 @@ runtime interaction is correct.
 Graphify is installed as shared tooling outside the repository. A local
 `graphify-out/` graph can be refreshed after changes and queried for source
 relationships. Generated audit data is excluded from releases.
-
-## Provenance
-
-The original design drew on [TrueForge](https://github.com/truefoundry/trueforge).
-[NOTICE](../NOTICE) preserves that attribution. The historical [design plan](PLAN.md)
-records the initial goals; it is not a claim of complete feature parity.

@@ -50,9 +50,9 @@ The artifact store is present on both sides.
 
 | Records returned | Payload bytes | Offloading disabled | Offloading enabled | Next-request context reduction |
 | --- | ---: | ---: | ---: | ---: |
-| 20 | 3,569 | 1,485 | 1,822 | **−22.69%**: helpers add 337 tokens; the small result stays inline |
-| 200 | 35,707 | 12,825 | 957 | **92.54%** |
-| 2,000 | 357,093 | 126,225 | 958 | **99.24%** |
+| 20 | 3,569 | 1,494 | 1,831 | **−22.56%**: helpers add 337 tokens; the small result stays inline |
+| 200 | 35,707 | 12,834 | 970 | **92.44%** |
+| 2,000 | 357,093 | 126,234 | 967 | **99.23%** |
 
 Counts include messages and all exposed tool schemas. For the two offloaded
 cases, the script reads the stored artifact and asserts byte-for-byte equality
@@ -61,7 +61,7 @@ information in the original result. Selective retrieval is the next step when th
 answer needs data outside that preview; those later calls are not measured here.
 
 Across both recorded input requests, including helper overhead before the tool
-runs, the respective reductions are **−40.53%, 88.68%, and 98.83%**. These totals
+runs, the respective reductions are **−40.10%, 88.53%, and 98.82%**. These totals
 still exclude future retrieval, generated output, and any real model's decisions.
 
 ### Tool catalogs: context on the first model request
@@ -72,14 +72,14 @@ the pair changes only `preload=True` versus `preload=False`.
 
 | Available tools | All schemas preloaded | Deferred discovery | First-request context reduction |
 | --- | ---: | ---: | ---: |
-| 1 | 271 | 550 | **−102.95%**: discovery adds 279 tokens |
-| 10 | 1,450 | 550 | **62.07%** |
-| 100 | 13,240 | 550 | **95.85%** |
+| 1 | 280 | 492 | **−75.71%**: discovery adds 212 tokens |
+| 10 | 1,459 | 492 | **66.28%** |
+| 100 | 13,249 | 492 | **96.29%** |
 
 This is the request before discovery or business-tool execution. The deferred
 request exposes three discovery/invocation helpers and the source description.
 When a tool is needed, its name/schema and subsequent results enter the
-conversation. The constant 550 in this fixture describes the initial request
+conversation. The constant 492 in this fixture describes the initial request
 for one source, not unlimited catalogs or a fixed size throughout execution.
 
 **The small cases matter.** Deferring one tool can be more expensive than preloading

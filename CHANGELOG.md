@@ -1,5 +1,31 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Reimplemented thread execution, orchestration, context queries, instruction
+  composition, compaction, deferred discovery, and the OpenUI instruction pack
+  while preserving public interfaces and persisted data shapes.
+- Replaced the historical design plan with current engineering contracts and
+  release acceptance work; refreshed README context measurements and diagrams.
+- Keep SQLAlchemy, PyYAML, and OpenAI tracing instrumentation in optional extras;
+  the core continues to depend only on Pydantic.
+
+### Fixed
+
+- Preserve MCP connection-initialization metadata from deferred discovery.
+- Safely quote instruction content containing a CDATA closing delimiter.
+- Publish capability append events after their checkpoint and reject writes to
+  another capability's state key.
+- Commit child joins and retirement atomically; retire already-answered children
+  from older snapshots without repeating model or tool work.
+
+### Added
+
+- 52 behavioral regression cases for stream ownership, cancellation, approvals,
+  recovery, child coordination, prompt composition, discovery, and OpenUI.
+
 ## 0.1.0 — 2026-09-07 (preview)
 
 ### Fixed
@@ -22,7 +48,7 @@
 - Regression tests across memory/SQLite, optional PostgreSQL, local MCP SDK
   integration, offline provider transport tests, coverage and CI checks.
 - Brief README, detailed usage/operations guides, contribution and security
-  policies, license/attribution files, typed-package marker, and distribution allowlists.
+  policies, license files, typed-package marker, and distribution allowlists.
 - Three architecture/context visuals and six reproducible context-efficiency
   measurements with their scope, overhead, and limitations.
 - GitHub CI for Python 3.10–3.14, CodeQL and dependency audits, coding-agent

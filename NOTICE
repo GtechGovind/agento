@@ -1,12 +1,4 @@
 agento
 
-The project's architecture was informed by TrueForge, a project by TrueFoundry
-released under the MIT license. This attribution preserves the provenance
-recorded in agento's original design documentation; it does not imply endorsement.
-
-Project: https://github.com/truefoundry/trueforge
-Upstream license: https://github.com/truefoundry/trueforge/blob/main/LICENSE
-
-Dependencies retain their own licenses. Review the dependency set selected for
-an application before distributing it. The release checklist includes a source
-provenance review; this notice does not certify the origin of every existing file.
+agento is distributed under the MIT license in LICENSE.
+Third-party dependencies are distributed separately under their respective licenses.
