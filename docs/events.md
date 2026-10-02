@@ -100,6 +100,13 @@ its outcome is the turn's outcome.
 
 Use `thread_id` to render delegated work in its own pane; `"main"` is the root.
 
+At a child join, the parent reply and child retirement are checkpointed together
+with `ToolResult` and `ThreadDone`. The live order is `ToolResult`, then
+`ThreadDone`. Both remain available in stored history if the stream closes
+between them. Older already-joined snapshots are retired without replaying work;
+when their terminal details are absent, recovery cannot reconstruct the missing
+`ThreadDone` status. See [recovery](operations.md).
+
 ### `ApprovalRequired`
 
 One or more tool calls need a human decision. The turn ends here.

@@ -1,5 +1,5 @@
 {
-  "measured_at": "2026-09-07T07:30:46.800122+00:00",
+  "measured_at": "2026-09-07T08:46:18.151902+00:00",
   "python": "3.14.7",
   "agento": "0.1.0",
   "pydantic": "2.13.5",
@@ -16,22 +16,22 @@
       "offloaded": false,
       "stored_bytes": 0,
       "next_request": {
-        "before": 1485,
-        "after": 1822,
-        "reduction_percent": -22.69
+        "before": 1494,
+        "after": 1831,
+        "reduction_percent": -22.56
       },
       "two_request_input_total": {
-        "before": 1663,
-        "after": 2337,
-        "reduction_percent": -40.53
+        "before": 1681,
+        "after": 2355,
+        "reduction_percent": -40.1
       },
       "baseline_request_tokens": [
-        178,
-        1485
+        187,
+        1494
       ],
       "enabled_request_tokens": [
-        515,
-        1822
+        524,
+        1831
       ]
     },
     {
@@ -41,22 +41,22 @@
       "offloaded": true,
       "stored_bytes": 35707,
       "next_request": {
-        "before": 12825,
-        "after": 957,
-        "reduction_percent": 92.54
+        "before": 12834,
+        "after": 970,
+        "reduction_percent": 92.44
       },
       "two_request_input_total": {
-        "before": 13003,
-        "after": 1472,
-        "reduction_percent": 88.68
+        "before": 13021,
+        "after": 1494,
+        "reduction_percent": 88.53
       },
       "baseline_request_tokens": [
-        178,
-        12825
+        187,
+        12834
       ],
       "enabled_request_tokens": [
-        515,
-        957
+        524,
+        970
       ]
     },
     {
@@ -66,22 +66,22 @@
       "offloaded": true,
       "stored_bytes": 357093,
       "next_request": {
-        "before": 126225,
-        "after": 958,
-        "reduction_percent": 99.24
+        "before": 126234,
+        "after": 967,
+        "reduction_percent": 99.23
       },
       "two_request_input_total": {
-        "before": 126403,
-        "after": 1473,
-        "reduction_percent": 98.83
+        "before": 126421,
+        "after": 1491,
+        "reduction_percent": 98.82
       },
       "baseline_request_tokens": [
-        178,
-        126225
+        187,
+        126234
       ],
       "enabled_request_tokens": [
-        515,
-        958
+        524,
+        967
       ]
     }
   ],
@@ -89,9 +89,9 @@
     {
       "catalog_tools": 1,
       "first_request": {
-        "before": 271,
-        "after": 550,
-        "reduction_percent": -102.95
+        "before": 280,
+        "after": 492,
+        "reduction_percent": -75.71
       },
       "preloaded_schemas": 1,
       "deferred_entrypoint_schemas": 3
@@ -99,9 +99,9 @@
     {
       "catalog_tools": 10,
       "first_request": {
-        "before": 1450,
-        "after": 550,
-        "reduction_percent": 62.07
+        "before": 1459,
+        "after": 492,
+        "reduction_percent": 66.28
       },
       "preloaded_schemas": 10,
       "deferred_entrypoint_schemas": 3
@@ -109,9 +109,9 @@
     {
       "catalog_tools": 100,
       "first_request": {
-        "before": 13240,
-        "after": 550,
-        "reduction_percent": 95.85
+        "before": 13249,
+        "after": 492,
+        "reduction_percent": 96.29
       },
       "preloaded_schemas": 100,
       "deferred_entrypoint_schemas": 3

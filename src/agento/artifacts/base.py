@@ -1,7 +1,6 @@
 """Artifacts — where content too large for the context window goes.
 
-TrueForge writes oversized tool results into a sandbox filesystem. agento has no
-sandbox, so it writes them into an **artifact store**: a small key/value
+agento writes oversized tool results into an **artifact store**: a small key/value
 interface for named blobs, with a built-in tool that lets the agent read parts of
 one back.
 

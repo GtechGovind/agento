@@ -49,6 +49,16 @@ An interrupted tool call with no durable result is repaired with an
 **outcome-unknown** result. It may have executed. The model is instructed to
 reconcile, but this instruction is not an exactly-once execution mechanism.
 
+Child joins commit the parent result and child retirement together, including
+both public lifecycle events. If the live stream closes after the parent's
+`ToolResult`, retrieve the child's `ThreadDone` from stored events.
+
+Older snapshots can contain a child whose parent call is already answered.
+Resume with an empty input batch to retire that child without running its model
+or tools again. A retained completion can supply an accurate `ThreadDone`; if
+terminal details were never stored, recovery does not invent a success or error
+status. Consult the original event log for any surviving evidence.
+
 ## Make side effects idempotent
 
 Use the tool context's `tool_call_id` to correlate attempts and maintain an

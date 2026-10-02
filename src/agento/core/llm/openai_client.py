@@ -2,7 +2,7 @@
 
 Use this instead of :mod:`~agento.core.llm.litellm_client` when your application
 only ever talks to one OpenAI-compatible endpoint — OpenAI itself, Azure
-OpenAI, vLLM, Ollama's compat layer, OpenRouter, TrueFoundry's gateway, LM
+OpenAI, vLLM, Ollama's compat layer, OpenRouter, LM
 Studio — and you would rather not pull LiteLLM in. It is a smaller dependency
 and a shorter code path; it just does not do multi-provider translation.
 

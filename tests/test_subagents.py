@@ -5,8 +5,9 @@ from __future__ import annotations
 from helpers import build_app, collect, first_of, of_type, say
 
 import agento
+from agento.core.instructions import SUB_AGENT_IDENTITY
 
-SUB_MARKER = "operating as a sub-agent"
+SUB_MARKER = SUB_AGENT_IDENTITY
 
 
 @agento.tool(read_only=True)
