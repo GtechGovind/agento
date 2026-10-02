@@ -159,9 +159,7 @@ class MCPServerRef(BaseModel):
     enable_tools: list[str] = Field(default_factory=lambda: list(DEFAULT_ENABLE_TOOLS))
     disable_tools: list[str] = Field(default_factory=lambda: list(DEFAULT_DISABLE_TOOLS))
     preload_tools: list[str] = Field(default_factory=lambda: list(DEFAULT_PRELOAD_TOOLS))
-    require_approval_for_tools: list[str] = Field(
-        default_factory=lambda: list(DEFAULT_REQUIRE_APPROVAL_FOR_TOOLS)
-    )
+    require_approval_for_tools: list[str] = Field(default_factory=lambda: list(DEFAULT_REQUIRE_APPROVAL_FOR_TOOLS))
     preload: bool = False
 
 

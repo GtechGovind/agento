@@ -1,41 +1,14 @@
-"""Generative UI — letting the agent render components instead of markdown.
+"""OpenUI authoring guidance delivered through an agent capability.
 
-Markdown cannot express a sortable table wired to a filter, a chart, a form, or a
-modal. This capability teaches the model a small declarative language, **openui**,
-and it emits a fenced block::
+This module contains a declarative component vocabulary and writing instructions.
+It does not interpret the resulting programs: generated fences travel through
+agento's normal text events. Applications supply their own parser, renderer, and
+action handlers.
 
-    ```openui
-    root = Stack([title, chart])
-    title = TextContent("Q4 Revenue", "large-heavy")
-    chart = BarChart(labels, [s1], "grouped")
-    labels = ["Oct", "Nov", "Dec"]
-    s1 = Series("Revenue", [120, 150, 180])
-    ```
-
-**agento renders nothing.** No UI code ships here — the block arrives in the
-stream as ordinary assistant text, and your application parses and renders it.
-That keeps agento an SDK: a React app, a Slack surface and a terminal client can
-each render the same output in their own way, or ignore it entirely.
-
-The language is deliberately the one TrueForge's chat UI speaks, so an existing
-``@truefoundry/trueforge-ui`` renderer works against agento unchanged. If you are
-writing your own renderer, this module *is* the specification — the grammar,
-component signatures and built-in functions below are the complete contract.
-
-Two modes:
-
-``preload=True``
-    The full specification goes into every system prompt. Roughly 4,000 tokens,
-    always present. Right when nearly every response is visual.
-
-``preload=False`` (default)
-    The prompt gets three lines saying the capability exists and that
-    ``get_openui_instructions`` must be called before writing a block. Costs
-    almost nothing until used, at the price of one extra tool call on the turns
-    that use it.
-
-Derived from TrueForge's OpenUI prompt (MIT licensed) so that renderers stay
-compatible.
+The default configuration exposes the guide through a read-only tool. Set
+``preload=True`` to include it directly in the model's system instructions.
+``render_openui_specification()`` also makes the guide available to host code.
+Neither mode measures token savings or establishes renderer compatibility.
 """
 
 from __future__ import annotations
@@ -51,108 +24,58 @@ __all__ = ["GenerativeUI", "render_openui_specification"]
 
 
 _FENCING = """\
-Every openui program must be inside a fenced block:
+Use the language identifier openui when enclosing a program in Markdown. The
+opening delimiter is three backticks followed by openui; the closing delimiter
+is three backticks on its own line. Keep explanations outside those delimiters.
+For example, a complete output block can contain a single component:
 
 ```openui
-root = Stack([...])
+root = Stack([TextContent("Reading room opens at 10:00")])
 ```
 
-The fence must be opened and closed. Nothing else goes inside it."""
+An unfinished fence is an incomplete response, even if its statements are valid."""
 
 
 _SYNTAX = """\
-1. One statement per line: `identifier = Expression`
-2. `root` is the entry point. Every program must define `root = Stack(...)`.
-3. Expressions are: strings ("..."), numbers, booleans (true/false), null,
-   arrays ([...]), objects ({...}), or component calls TypeName(arg1, arg2, ...)
-4. Define a name on one line and reference it later — this reads better and
-   streams better.
-5. EVERY variable except `root` must be referenced by at least one other
-   variable. An unreferenced variable is silently dropped and will not render.
-6. Arguments are POSITIONAL. Write `Stack([children], "row", "l")`, NOT
-   `Stack([children], direction: "row", gap: "l")`. Named-argument syntax is not
-   supported and fails silently.
-7. Optional arguments may be omitted from the end.
-8. Strings use double quotes, with backslash escaping."""
+Program structure
+-----------------
+The first assignment is root = Stack(...). It identifies the component tree
+that the host should display. Put each assignment on its own line, using an
+identifier on the left of = and an expression on the right. A declaration can
+refer to another declaration that appears later in the block.
+
+Expression vocabulary
+---------------------
+Values include numbers, true, false, null, double-quoted strings, arrays in
+square brackets, and objects in braces. Escape embedded quotes and backslashes
+inside strings with a backslash. A component expression uses its registered
+name followed by an ordered argument list in parentheses. Conditional
+expressions use condition ? expression : expression; null can occupy the
+hidden branch. Field access uses dots, including projection across array rows.
+
+Argument positions are part of the API. Trailing optional arguments can be
+left out; use null as a placeholder when supplying a later optional value.
+Object fields can have colons, but component calls do not accept named
+arguments. A $name denotes bound state; $binding<T> in a signature requires
+such a reference rather than a copied value. ActionExpression means an
+Action([...]) containing the desired @ operations.
+
+Follow dependencies outward from root when checking a program. Every name
+used must have a definition. Remove declarations that cannot be reached from
+root: they have no displayed effect. Non-root declarations must be referenced
+by another declaration. Inline component expressions are also permitted."""
 
 
 _COMPONENTS = """\
-Arguments marked ? are optional. Sub-components may be inline or referenced;
-prefer references, which stream better.
-Props typed `ActionExpression` take Action([@steps...]).
-Props typed `$binding<type>` take a `$variable` reference for two-way binding.
+Component registry
+==================
+A question mark denotes an optional position. Brackets on a type denote an
+array. The declarations below are the supported call shapes; their parameter
+labels explain order and are not named-argument syntax.
 
-Layout:
-  Stack(children[], direction?: "row"|"column", gap?: "none"|"xs"|"s"|"m"|"l"|"xl"|"2xl",
-        align?: "start"|"center"|"end"|"stretch"|"baseline",
-        justify?: "start"|"center"|"end"|"between"|"around"|"evenly", wrap?: boolean)
-      Flex container. Defaults: direction "column", gap "m".
-  Card(children[], variant?: "card"|"sunk"|"clear", direction?, gap?, align?, justify?, wrap?)
-      Styled container, always full width. Takes all Stack flex arguments.
-  CardHeader(title?: string, subtitle?: string)
-  Tabs(items: TabItem[])
-  TabItem(value: string, trigger: string, content: Component[])
-  Accordion(items: AccordionItem[])
-  AccordionItem(value: string, trigger: string, content: Component[])
-  Steps(items: StepsItem[])
-  StepsItem(title: string, details: string)
-  Carousel(children: Component[][], variant?: "card"|"sunk")
-  Separator(orientation?: "horizontal"|"vertical", decorative?: boolean)
-  Modal(title: string, open?: $binding<boolean>, children: Component[], size?: "sm"|"md"|"lg")
-      X, Escape and the backdrop close it automatically.
-
-  - For grid-like layouts use Stack with direction "row" and wrap true.
-  - Prefer justify "start" (or omit it) with wrap, for even columns.
-  - Show/hide a section with a ternary: $editId != "" ? Card([editForm]) : null
-
-Content:
-  TextContent(text: string, size?: "small"|"default"|"large"|"small-heavy"|"large-heavy")
-      Supports markdown.
-  MarkDownRenderer(textMarkdown: string, variant?: "clear"|"card"|"sunk")
-  Callout(variant: "info"|"warning"|"error"|"success"|"neutral", title: string,
-          description: string, visible?: $binding<boolean>)
-      With a `visible` binding it auto-dismisses after 3 seconds.
-  TextCallout(variant?: "neutral"|"info"|"warning"|"success"|"danger", title?, description?)
-  Image(alt: string, src?: string)
-  ImageBlock(src: string, alt?: string)
-  ImageGallery(images: {src, alt?, details?}[])
-  CodeBlock(language: string, codeString: string)
-  Tag(text: string, icon?: string, size?: "sm"|"md"|"lg",
-      variant?: "neutral"|"info"|"success"|"warning"|"danger")
-  TagBlock(tags: string[])
-
-Tables (COLUMN-oriented — each Col carries its own data array):
-  Table(columns: Col[])
-  Col(label: string, data, type?: "string"|"number"|"action")
-
-  - Pluck a field from rows with `data.rows.fieldName`.
-  - Styled cells: Col("Status", @Each(rows, "r", Tag(r.status, null, "sm",
-      r.status == "open" ? "success" : "danger")))
-  - Row actions: Col("Actions", @Each(rows, "r", Button("Edit",
-      Action([@Set($showEdit, true), @Set($editId, r.id)]))))
-  - Empty state: @Count(rows) > 0 ? Table([...]) : TextContent("No data yet")
-
-Charts (2D):
-  BarChart(labels: string[], series: Series[], variant?: "grouped"|"stacked", xLabel?, yLabel?)
-  LineChart(labels, series, variant?: "linear"|"natural"|"step", xLabel?, yLabel?)
-  AreaChart(labels, series, variant?: "linear"|"natural"|"step", xLabel?, yLabel?)
-  RadarChart(labels, series)
-  HorizontalBarChart(labels, series, variant?: "grouped"|"stacked", xLabel?, yLabel?)
-  Series(category: string, values: number[])
-
-Charts (1D — these take plain numbers, not objects):
-  PieChart(labels: string[], values: number[], variant?: "pie"|"donut")
-  RadialChart(labels: string[], values: number[])
-  SingleStackedBarChart(labels: string[], values: number[])
-
-Charts (scatter):
-  ScatterChart(datasets: ScatterSeries[], xLabel?, yLabel?)
-  ScatterSeries(name: string, points: Point[])
-  Point(x: number, y: number, z?: number)
-
-Forms:
+Collect input and attach commands
+--------------------------------
   Form(name: string, buttons: Buttons, fields: FormControl[])
-      Always pass buttons. Never nest a Form inside a Form.
   FormControl(label: string, control)
   Input(name: string, placeholder?: string, type?: string, rules?: object)
   TextArea(name: string, placeholder?: string, rows?: number, rules?: object)
@@ -161,123 +84,224 @@ Forms:
   Buttons(items: Button[])
   Button(label: string, action: ActionExpression, variant?: "primary"|"secondary"|"ghost")
 
-Actions:
-  Action([@steps])         a sequence of steps run in order
-  @ToAssistant(message)    send a message back to the agent
-  @OpenUrl(url)            open a URL
-  @Set($var, value)        set a bound variable
-  @Reset($var1, $var2)     restore variables to their defaults
-  @Run(query)              re-run a query"""
+Supply a Buttons value in position two of Form, even when fields are the main
+content. Forms cannot contain other forms. The rules object carries field
+validation settings to the host; validation must also occur at the application
+boundary before an action changes external state.
+
+  Action([@steps])
+  @ToAssistant(message)
+  @OpenUrl(url)
+  @Set($var, value)
+  @Reset($var1, $var2)
+  @Run(query)
+
+Action executes its array in sequence. ToAssistant returns a message to the
+agent; OpenUrl requests navigation. Set changes a bound value, Reset restores
+bound values to their initial settings, and Run requests query evaluation.
+These describe renderer-side interactions, not Python tool calls performed by
+agento when it receives the block.
+
+Organize the component tree
+---------------------------
+  Stack(children[], direction?: "row"|"column", gap?: "none"|"xs"|"s"|"m"|"l"|"xl"|"2xl",
+        align?: "start"|"center"|"end"|"stretch"|"baseline",
+        justify?: "start"|"center"|"end"|"between"|"around"|"evenly", wrap?: boolean)
+  Card(children[], variant?: "card"|"sunk"|"clear", direction?, gap?, align?, justify?, wrap?)
+  CardHeader(title?: string, subtitle?: string)
+  Separator(orientation?: "horizontal"|"vertical", decorative?: boolean)
+  Tabs(items: TabItem[])
+  TabItem(value: string, trigger: string, content: Component[])
+  Accordion(items: AccordionItem[])
+  AccordionItem(value: string, trigger: string, content: Component[])
+  Carousel(children: Component[][], variant?: "card"|"sunk")
+  Steps(items: StepsItem[])
+  StepsItem(title: string, details: string)
+  Modal(title: string, open?: $binding<boolean>, children: Component[], size?: "sm"|"md"|"lg")
+
+Stack defaults to column direction with an m gap. Card spans the available
+width and shares Stack's layout arguments after its variant. A wrapping row
+Stack provides multiple columns; start justification keeps wrapped items
+anchored consistently. Tabs and Accordion provide alternate views and
+expansion without additional visibility state. Modal's open binding follows
+its close control, Escape, and backdrop interaction. A conditional component
+can be null when a section should be absent.
+
+Write text and display media
+----------------------------
+  TextContent(text: string, size?: "small"|"default"|"large"|"small-heavy"|"large-heavy")
+  MarkDownRenderer(textMarkdown: string, variant?: "clear"|"card"|"sunk")
+  CodeBlock(language: string, codeString: string)
+  Image(alt: string, src?: string)
+  ImageBlock(src: string, alt?: string)
+  ImageGallery(images: {src, alt?, details?}[])
+  Tag(text: string, icon?: string, size?: "sm"|"md"|"lg",
+      variant?: "neutral"|"info"|"success"|"warning"|"danger")
+  TagBlock(tags: string[])
+  Callout(variant: "info"|"warning"|"error"|"success"|"neutral", title: string,
+          description: string, visible?: $binding<boolean>)
+  TextCallout(variant?: "neutral"|"info"|"warning"|"success"|"danger", title?, description?)
+
+TextContent accepts Markdown. Notice the opposite source/alt ordering of Image
+and ImageBlock. Callout uses error while TextCallout uses danger for their
+respective negative variants. Binding Callout visibility enables a three-second
+automatic dismissal in a compatible renderer.
+
+Map records to columns
+----------------------
+  Table(columns: Col[])
+  Col(label: string, data, type?: "string"|"number"|"action")
+
+Construct a table from columns, each supplying its own cell array. Project a
+record field with records.field. Build component-valued cells with Each when
+cells need tags or buttons; give all columns matching row counts. For example,
+Col("Available", @Each(stock, "item", Tag("" + item.quantity))) produces one
+status component per record. Handle an empty array explicitly instead of
+implying that an absent row has a zero value.
+
+Compare measurements
+--------------------
+  Series(category: string, values: number[])
+  BarChart(labels: string[], series: Series[], variant?: "grouped"|"stacked", xLabel?, yLabel?)
+  HorizontalBarChart(labels, series, variant?: "grouped"|"stacked", xLabel?, yLabel?)
+  LineChart(labels, series, variant?: "linear"|"natural"|"step", xLabel?, yLabel?)
+  AreaChart(labels, series, variant?: "linear"|"natural"|"step", xLabel?, yLabel?)
+  RadarChart(labels, series)
+  PieChart(labels: string[], values: number[], variant?: "pie"|"donut")
+  RadialChart(labels: string[], values: number[])
+  SingleStackedBarChart(labels: string[], values: number[])
+  ScatterChart(datasets: ScatterSeries[], xLabel?, yLabel?)
+  ScatterSeries(name: string, points: Point[])
+  Point(x: number, y: number, z?: number)
+
+A Series aligns its numeric values with the labels supplied to its chart.
+PieChart, RadialChart, and SingleStackedBarChart instead receive a numeric
+array directly. ScatterChart uses named datasets of Point values; the third
+coordinate is optional. Preserve units in labels and do not invent missing
+measurements to fill a series."""
 
 
 _BUILTINS = """\
-Built-in functions are prefixed with `@`. These are the ONLY functions
-available — do not invent others. Use them instead of hardcoding computed values.
+Expression operations
+=====================
+Only the following @ functions are part of this authoring contract. Nested
+calls can calculate values from the program's data. An ordinary declaration is
+not a function definition, and arbitrary JavaScript is not supported.
 
-  @Count(array) -> number
+Select, arrange, and transform arrays:
+  @Filter(array, field, operator, value) -> array
+  @Sort(array, field, direction?) -> array
+  @Each(array, varName, template)
   @First(array) -> element
   @Last(array) -> element
+  @Count(array) -> number
+
+Filter operators are ==, !=, >, <, >=, <=, and contains. Supply the selected
+operator as a string. Sort direction is asc by default, or desc. Dot projection,
+such as inventory.quantity, gathers that field from every array element.
+Each evaluates its inline template once for each element. Its varName is local
+to that template; a separately assigned component cannot capture that name.
+For a row-specific navigation action, an inline template can be:
+@Each(sites, "site", Button(site.label, Action([@OpenUrl(site.url)])))
+
+Aggregate and adjust numbers:
   @Sum(numbers[]) -> number
   @Avg(numbers[]) -> number
   @Min(numbers[]) -> number
   @Max(numbers[]) -> number
-  @Sort(array, field, direction?) -> array          direction "asc" (default) | "desc"
-  @Filter(array, field, operator, value) -> array   operator ==, !=, >, <, >=, <=, contains
   @Round(number, decimals?) -> number
-  @Abs(number) / @Floor(number) / @Ceil(number) -> number
-  @Each(array, varName, template)                   evaluate template per element
+  @Abs(number) -> number
+  @Floor(number) -> number
+  @Ceil(number) -> number
 
-They compose: @Count(@Filter(rows, "status", "==", "open")),
-@Round(@Avg(rows.score), 1), @Each(rows, "r", Tag(r.status)).
-
-Array pluck: `rows.field` extracts one field from every row — use it for charts
-and table columns.
-
-IMPORTANT @Each rule: the loop variable exists ONLY inside the template
-expression, which must be written inline.
-  CORRECT: Col("Actions", @Each(rows, "r", Button("Edit", Action([@Set($id, r.id)]))))
-  WRONG:   btn = Button("Edit", Action([@Set($id, r.id)]))
-           Col("Actions", @Each(rows, "r", btn))     # r is undefined in btn"""
+For instance, @Round(@Sum(deliveries.weight), 2) expresses a rounded total
+from delivery weights. Check that input arrays contain the intended numeric
+field before using an aggregate. Keep uncertain source data visibly uncertain
+instead of replacing it with a plausible computed value."""
 
 
 _STREAMING = """\
-References may be used before they are defined — the parser resolves them after
-the whole program is read.
+Plan the dependency tree before emitting its text. Begin with the root Stack,
+then declare bound state, query expressions, component references, and finally
+their data. This order lets a renderer encounter the enclosing structure before
+its contents. Forward references are allowed: a reference can remain unresolved
+until its declaration arrives later in the same program.
 
-While streaming, the program is re-parsed on every chunk, so unresolved
-references simply appear once their definitions arrive. This produces a
-progressive top-down reveal: structure first, data filling in after.
-
-Write statements in this order for the best streaming:
-  1. root = Stack(...)        the shell appears immediately
-  2. $variable declarations   state ready for bindings
-  3. queries                  so components render with data
-  4. component definitions
-  5. leaf data values
-
-Always write `root = Stack(...)` first."""
+The intended display model reparses incoming chunks and resolves newly available
+names. That progressive display is a responsibility of the host renderer.
+agento forwards the model's chunks without parsing components, running queries,
+or changing UI bindings. A host may also wait for the completed message before
+displaying anything. Do not assume an unfinished program has already rendered."""
 
 
 _EXAMPLES = """\
-Example 1 — table (column-oriented):
+Worked programs
+===============
+These invented records illustrate call syntax; they are not reported facts.
+Each program below is independent and belongs in its own openui fence.
 
-root = Stack([title, tbl])
-title = TextContent("Top Languages", "large-heavy")
-tbl = Table([Col("Language", langs), Col("Users (M)", users, "number"), Col("Year", years, "number")])
-langs = ["Python", "JavaScript", "Java", "TypeScript", "Go"]
-users = [15.7, 14.2, 12.1, 8.5, 5.2]
-years = [1991, 1995, 1995, 2012, 2009]
+A supplies view with a local filter and selection:
 
-Example 2 — bar chart:
+root = Stack([controls, listing, selection])
+$minimum = 0
+$selected = "none"
+visibleStock = @Filter(stock, "quantity", ">=", $minimum)
+controls = Buttons([Button("Hide low stock", Action([@Set($minimum, 5)])), Button("Reset filter", Action([@Reset($minimum)]), "secondary")])
+listing = @Count(visibleStock) > 0 ? Table([Col("Supply", visibleStock.label), Col("Units", visibleStock.quantity, "number"), Col("Pick", @Each(visibleStock, "s", Button(s.label, Action([@Set($selected, s.label)]))), "action")]) : TextContent("No supplies match this filter")
+selection = TextContent("Selected supply: " + $selected)
+stock = [{label: "Brushes", quantity: 8}, {label: "Aprons", quantity: 3}]
 
-root = Stack([title, chart])
-title = TextContent("Q4 Revenue", "large-heavy")
-chart = BarChart(labels, [s1, s2], "grouped")
-labels = ["Oct", "Nov", "Dec"]
-s1 = Series("Product A", [120, 150, 180])
-s2 = Series("Product B", [90, 110, 140])
+A measurement chart with an explicit unit:
 
-Example 3 — form with validation:
+root = Stack([heading, plot])
+heading = CardHeader("Illustrative greenhouse readings", "Temperature in degrees Celsius")
+plot = LineChart(hours, [northBed, southBed], "linear", "Time", "Celsius")
+hours = ["06:00", "12:00", "18:00"]
+northBed = Series("North bed", [16, 23, 19])
+southBed = Series("South bed", [17, 25, 20])
 
-root = Stack([title, form])
-title = TextContent("Contact Us", "large-heavy")
-form = Form("contact", btns, [nameField, emailField, msgField])
-nameField = FormControl("Name", Input("name", "Your name", "text", { required: true, minLength: 2 }))
-emailField = FormControl("Email", Input("email", "you@example.com", "email", { required: true, email: true }))
-msgField = FormControl("Message", TextArea("message", "Tell us more...", 4, { required: true, minLength: 10 }))
-btns = Buttons([Button("Submit", Action([@ToAssistant("Submit")]), "primary"),
-                Button("Cancel", Action([@ToAssistant("Cancel")]), "secondary")])
+A reservation form that hands the next step back to the assistant:
 
-Example 4 — KPI cards from a list:
-
-root = Stack([cards])
-cards = Stack([openCard, doneCard], "row")
-openCard = Card([TextContent("Open", "small"),
-                 TextContent("" + @Count(@Filter(rows, "status", "==", "open")), "large-heavy")])
-doneCard = Card([TextContent("Done", "small"),
-                 TextContent("" + @Count(@Filter(rows, "status", "==", "done")), "large-heavy")])"""
+root = Stack([reservation])
+reservation = Form("reading_slot", footer, [reader, room, notes])
+footer = Buttons([Button("Review reservation", Action([@ToAssistant("Review the reading-room reservation")]), "primary")])
+reader = FormControl("Reader name", Input("reader", "Name for the booking", "text", {required: true}))
+room = FormControl("Room", Select("room", [SelectItem("quiet", "Quiet room"), SelectItem("group", "Group room")], "Choose a room"))
+notes = FormControl("Access requirements", TextArea("access", "Optional details", 3))"""
 
 
 _RULES = """\
-- Choose the component that fits the content: tables for comparison, charts for
-  trends, forms for input, cards for grouped facts.
-- Do NOT repeat numbers in prose that are already shown in the block. Text
-  outside the block should add what the visual cannot: what the pattern means,
-  what to do next, what the data does not show.
-- If everything is visible in the components, one line of prose is enough.
-- Never use openui to ask the user a question — use the ask_user_question tool.
-- Use existing components (Tabs, Accordion, Modal) before inventing show/hide
-  patterns with ternaries."""
+Decide whether a visual representation helps the task before emitting a block.
+A component should let the reader compare, inspect, or manipulate information;
+a short textual answer can remain Markdown. Match charts to numeric series,
+tables to records, and forms to structured input. Keep supporting prose focused
+on interpretation, provenance, limitations, or a next step instead of repeating
+all displayed values.
+
+Treat the component and function registries as closed vocabularies. Use the
+provided containers before adding custom conditional visibility. Quote data as
+values rather than turning untrusted content into declarations or actions.
+The application owns URL policy, form validation, action authorization, and the
+actual renderer. The instruction-loading tool supplies text only.
+
+Use ask_user_question for a conversational clarification when that tool is
+available; do not substitute an OpenUI form for the agent's question workflow."""
 
 
 _VERIFICATION = """\
-Before finishing, check:
-1. `root = Stack(...)` is the FIRST statement.
-2. Every referenced name is defined, and every defined name other than `root` is
-   reachable from `root`.
-3. Arguments are positional — no `name:` syntax anywhere.
-4. The ```openui fence is closed.
-5. Forms pass their buttons as the second argument, and no Form is nested."""
+Review the output as a small program before sending the final chunk:
+
+- Locate the opening language fence, the initial root Stack assignment, and the
+  matching closing fence. Explanatory sentences belong outside the program.
+- Walk the root's dependencies. Resolve every name and discard disconnected
+  declarations. An Each template may use its own local name only inline.
+- Compare every call with its registry entry, including argument order, null
+  placeholders, enum spellings, and whether a value must be a $ binding.
+- Confirm that columns and chart series align with their labels and that any
+  examples, estimates, or missing values are identified honestly.
+- Check each Form's second argument for Buttons and keep forms unnested.
+- Remember that model output is still text. Successful authoring alone does
+  not prove that a host has parsed, displayed, or authorized its actions."""
 
 
 _SECTIONS: list[tuple[str, str]] = [
@@ -292,41 +316,32 @@ _SECTIONS: list[tuple[str, str]] = [
 ]
 
 _DEFERRED_NOTICE = """\
-The Agent can render interactive UI that markdown cannot express — tables wired
-to filters, charts, forms, modals — by emitting a fenced ```openui block.
-
-Before writing any ```openui block, the Agent MUST call
-get_openui_instructions with {} to load the syntax. Do not guess the component
-API.
-
-Use it only when the response is genuinely visual. For ordinary answers, write
-markdown."""
+An OpenUI authoring guide is available for responses that benefit from structured
+visual content. Retrieve it with get_openui_instructions({}) before emitting an
+openui fence; the component names alone are not enough to infer valid calls.
+The tool returns the guide without rendering a view. The host application
+handles presentation and interaction; use normal text when no view is needed."""
 
 
 def render_openui_specification() -> str:
-    """The complete openui specification as one string.
-
-    Returned by ``get_openui_instructions`` in deferred mode, and useful on its
-    own if you are writing a renderer and want the contract in one place.
-    """
+    """Return the authoring guide with its stable section delimiters."""
     return "\n\n".join(f"<{tag}>\n{body}\n</{tag}>" for tag, body in _SECTIONS)
 
 
 async def _get_openui_instructions() -> str:
-    """Load the full openui authoring instructions.
+    """Retrieve OpenUI syntax and component guidance before producing a UI block.
 
-    Call this before writing any ```openui block. Pass no arguments.
+    This read-only operation has no arguments and returns instruction text.
     """
     return render_openui_specification()
 
 
 class GenerativeUI(Capability):
-    """Teaches the model the openui language.
+    """Add OpenUI authoring support to a model's available instructions.
 
     Args:
-        preload: Put the whole specification in the system prompt. Costs roughly
-            4,000 tokens on every call; worth it only when most responses are
-            visual. The default defers it behind a tool.
+        preload: Include the guide in the system prompt when true. Otherwise,
+            expose a read-only instruction tool and a short discovery notice.
     """
 
     name = "generative_ui"
@@ -339,7 +354,7 @@ class GenerativeUI(Capability):
             else LocalToolSet(
                 "openui",
                 [Tool(_get_openui_instructions, name="get_openui_instructions", read_only=True)],
-                description="Load the instructions for rendering interactive UI.",
+                description="Retrieve the OpenUI authoring guide as text.",
                 kind="builtin",
             )
         )

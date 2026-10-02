@@ -714,7 +714,7 @@ class SQLSessionStore:
             rows = (await connection.execute(query.limit(limit + 1))).fetchall()
 
         # Newest turn first, then newest event within it.
-        ordered = sorted(rows, key=lambda row: (position.get(row.turn_id, 0), _invert(row.event_id)))
+        ordered = sorted(rows, key=lambda _row: (position.get(_row.turn_id, 0), _invert(_row.event_id)))
         has_more = len(ordered) > limit
         page = ordered[:limit]
         return Page(

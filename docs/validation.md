@@ -14,7 +14,39 @@ package contents, and repeatable development checks. Existing user-owned staged
 and untracked work was preserved; the original study began before the repository's
 first commit.
 
-## Local results — 2026-09-07
+## Runtime replacement validation — 2026-09-07
+
+Seven modules were reimplemented around local interface and behavioral contracts:
+thread execution, orchestration, context queries, instruction composition,
+compaction, deferred tools, and the OpenUI instruction pack. Public call shapes
+and persisted data models remain compatible. The engineering plan and prompt
+examples were rewritten, and current source and documentation branding was removed.
+
+| Check | Result |
+| --- | --- |
+| Python 3.14.7 with locked optional integrations | 179 tests passed |
+| Python 3.10.20 with MCP 1.26.0 and offline provider adapters | 179 tests passed; the MCP test server emits the settings warning described below |
+| Combined statement and branch coverage | 88.18%; configured floor remains 85% (90.62% statements, 78.84% branches) |
+| Runtime contract regressions | 52 additional cases across execution, orchestration, instructions, discovery, compaction, and OpenUI |
+| Minimum core: Python 3.10.20 / Pydantic 2.7.0 | 66 tests passed; seven pytest modules and one optional SQL test explicitly skipped |
+| Ruff and strict mypy | Passed; 62 library modules type-checked |
+| README quickstart and six examples | Passed in both full and minimal environments |
+| Context measurements | All six synthetic cases rerun; tables and README chart updated from the recorded JSON |
+
+The new cases cover iterator ownership, cancellation, approval publication,
+capability-state recovery, child-result replay, source backpressure, discovery
+policy, and safe quoted instruction content. Discovery now preserves MCP
+initialization metadata when it opens a connection. Capability append events
+reach both stored and live streams after checkpointing, and state writes enforce
+the emitting capability's own key. Successful and failed child joins are atomic;
+legacy answered-child snapshots retire without repeating their work.
+
+These checks establish behavior in the stated environments. They are not a formal
+clean-room process or a repository-wide provenance certification. Live-model
+summary quality and host-rendered OpenUI output still require acceptance testing.
+The immutable v0.1.0 release and historical commits retain their original contents.
+
+## Original preview baseline — 2026-09-07
 
 | Check | Evidence / result |
 | --- | --- |
@@ -39,7 +71,7 @@ responses on Python 3.10, but live LiteLLM construction is explicitly rejected.
 
 The test counts and coverage above describe the stated environment. They do not
 mean every branch is covered or every provider/database combination is verified.
-The compatibility workflow is in [CI](../.github/workflows/ci.yml). The table above
+The compatibility workflow is in [CI](../.github/workflows/ci.yml). The preview table above
 is the original local baseline; current hosted results are available in
 [Verify](https://github.com/GtechGovind/agento/actions/workflows/ci.yml) and
 [Security](https://github.com/GtechGovind/agento/actions/workflows/security.yml).
@@ -66,7 +98,7 @@ The [release pipeline](releases.md) requires both gates to pass on its exact sou
 | Image/file wire parts fail provider schema | Normalize content parts; validate exact OpenAI SDK content-part schemas |
 | Child completion/retirement can replay | Persist completion and retire before checkpoint; [boundary tests](../tests/test_boundaries.py) |
 | Package includes local workspace state | Explicit sdist allowlist, license/typing marker, [distribution check](../scripts/check_dist.py) |
-| Relationship and documentation drift | Public export/dependency tests, local Markdown link checks, refreshed Graphify map |
+| Relationship and documentation drift | Public export/dependency tests, local Markdown link checks, Graphify navigation (the local graph predates the runtime replacement) |
 
 ## Reproduce
 

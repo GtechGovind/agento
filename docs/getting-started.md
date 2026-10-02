@@ -19,7 +19,7 @@ On Windows, activate with `.venv\Scripts\activate`. Choose extras as needed:
 | `mcp` | Remote MCP tools; tested SDK range declared in `pyproject.toml` |
 | `sqlite` | SQLAlchemy and the SQLite driver |
 | `postgres` | SQLAlchemy and the PostgreSQL driver |
-| `otel` | OpenTelemetry tracing API |
+| `otel` | OpenTelemetry tracing API and optional OpenAI SDK instrumentation |
 | `extras` | Optional token counting, ULIDs, YAML, and supporting libraries |
 | `all` | Both model adapters, MCP, SQLite, tracing, and niceties; add `postgres` for its driver |
 | `dev` | Test, coverage, type-checking, lint, and local test-server dependencies |
@@ -27,6 +27,8 @@ On Windows, activate with `.venv\Scripts\activate`. Choose extras as needed:
 Combine them with `python -m pip install -e '.[openai,sqlite]'`.
 The core imports without those extras. A missing adapter dependency produces an
 installation hint when that adapter is used.
+Installing `otel` does not configure exporters or enable instrumentation; your
+application controls the tracing setup.
 
 ## 2. Run without an account
 
